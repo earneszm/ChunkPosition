@@ -1,0 +1,27 @@
+// positions the chunk next to the last active chunk
+    void PositionChunk(Transform chunkCreatedObject)
+    {
+        Chunk chunkScript = chunkCreatedObject.GetComponent<Chunk>();
+        float xOffset = Mathf.Abs(chunkScript.Start.localPosition.x) + 
+                        activeList[activeList.Count - 1].GetComponent<Chunk>().End.localPosition.x;        
+        float yOffset = activeList[activeList.Count - 1].GetComponent<Chunk>().End.localPosition.y - 
+                        chunkScript.Start.localPosition.y;
+
+        RemoveColliders(chunkCreatedObject);
+        
+        chunkCreatedObject.position = activeList[activeList.Count - 1].position;
+        chunkCreatedObject.position += new Vector3(xOffset, yOffset, 0);
+    }
+    
+    // recursively destroy colliders on any children found within a given object
+    void RemoveColliders(Transform parentObject)
+    {
+        foreach (Transform child in parentObject)
+        {
+            if (child.tag == "ignoreColliderRemove") // don't need to remove colliders from objects with rigidbodies
+                continue;
+            if (child.childCount > 0)
+                RemoveColliders(child);
+            Destroy(child.GetComponent<BoxCollider2D>());
+        }
+    }
